@@ -1,16 +1,19 @@
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
-class BaoHanh:
-    """Lớp đại diện cho Bảo hành"""
+class Warranty:
 
-    def __init__(self, ma_bao_hanh: str, ma_sp: str, ma_don_hang: str,
-                 ngay_bat_dau: datetime, ngay_ket_thuc: datetime):
-        self.ma_bao_hanh = ma_bao_hanh
-        self.ma_sp = ma_sp
-        self.ma_don_hang = ma_don_hang
-        self.ngay_bat_dau = ngay_bat_dau
-        self.ngay_ket_thuc = ngay_ket_thuc
+    def __init__(self, warranty_id: str, product_id: str, order_id: str, customer_id: str, phone: str,
+                 start_date: datetime, warranty_date: int):
+        self.warranty_id = warranty_id
+        self.product_id = product_id
+        self.order_id = order_id
+        self.customer_id = customer_id
+        self.phone = phone
+        self.start_date = start_date
+        self.warranty_date = warranty_date
 
-    def kiem_tra_con_hieu_luc(self) -> bool:
-        """Kiểm tra bảo hành còn hiệu lực"""
-        return datetime.now() <= self.ngay_ket_thuc
+        self.end_date = self.start_date + relativedelta(months=self.warranty_date)
+
+    def check_time(self) -> bool:
+        return datetime.now() <= self.end_date

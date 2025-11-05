@@ -1,15 +1,16 @@
+from datetime import datetime
+
+
 class Order_Detail:
-    """Lớp đại diện cho Chi tiết đơn hàng"""
 
-    def __init__(self, ma_sp: str, ten_sp: str, so_luong: int, don_gia: float):
-        self.ma_sp = ma_sp
-        self.ten_sp = ten_sp
-        self.so_luong = so_luong
-        self.don_gia = don_gia
+    def __init__(self, product_id: str, quantity: int, start_date: datetime):
+        self.product_id = product_id
+        self.quantity = quantity
+        self.start_date = start_date
 
-    def tinh_thanh_tien(self) -> float:
-        """Tính thành tiền"""
-        return self.so_luong * self.don_gia
+    def total_amount(self) -> float:
+        pass
+        # return self.quantity * Product.price
 
     def __str__(self):
-        return f"{self.ten_sp} x{self.so_luong} = {self.tinh_thanh_tien():,.0f}đ"
+        return f"{self.product_id} x{self.quantity} = {self.total_amount():,.0f}đ"

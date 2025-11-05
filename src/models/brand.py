@@ -1,12 +1,11 @@
-class ThuongHieu:
-    """Lớp đại diện cho Thương hiệu"""
+class Brand:
 
-    def __init__(self, ma_thuong_hieu: str, ten_thuong_hieu: str,
-                 quoc_gia: str = "", mo_ta: str = ""):
-        self.ma_thuong_hieu = ma_thuong_hieu
-        self.ten_thuong_hieu = ten_thuong_hieu
-        self.quoc_gia = quoc_gia
-        self.mo_ta = mo_ta
+    def __init__(self, brand_id: str, brand_name: str,
+                 country: str = "", brand_des: str = ""):
+        self.brand_id = brand_id
+        self.brand_name = brand_name
+        self.country = country
+        self.brand_des = brand_des
 
     def __str__(self):
-        return f"TH[{self.ma_thuong_hieu}] {self.ten_thuong_hieu} ({self.quoc_gia})"
+        return f"TH[{self.brand_id}] {self.brand_name} ({self.country})"

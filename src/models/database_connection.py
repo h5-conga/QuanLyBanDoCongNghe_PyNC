@@ -57,76 +57,87 @@ class DatabaseConnection:
 
         # Bảng danh mục
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS danh_muc (
-                ma_danh_muc VARCHAR(20) PRIMARY KEY,
-                ten_danh_muc VARCHAR(255) NOT NULL,
-                mo_ta TEXT
+            CREATE TABLE IF NOT EXISTS category (
+                category_id VARCHAR(20) PRIMARY KEY,
+                category_name NVARCHAR(255) NOT NULL,
+                category_des TEXT
             )
         ''')
 
         # Bảng thương hiệu
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS thuong_hieu (
-                ma_thuong_hieu VARCHAR(20) PRIMARY KEY,
-                ten_thuong_hieu VARCHAR(255) NOT NULL,
-                quoc_gia VARCHAR(100),
-                mo_ta TEXT
+            CREATE TABLE IF NOT EXISTS brand (
+                brand_id VARCHAR(20) PRIMARY KEY,
+                brand_name NVARCHAR(255) NOT NULL,
+                country VARCHAR(100),
+                brand_des TEXT
             )
         ''')
 
         # Bảng user
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS user (
-                ma_user VARCHAR(20) PRIMARY KEY,
-                ten_dang_nhap VARCHAR(100) UNIQUE NOT NULL,
-                mat_khau VARCHAR(255) NOT NULL,
-                ho_ten VARCHAR(255) NOT NULL,
-                email VARCHAR(255),
-                vai_tro VARCHAR(50) DEFAULT 'nhanvien',
-                trang_thai VARCHAR(50) DEFAULT 'hoatdong',
-                ngay_tao DATETIME
+                user_id VARCHAR(20) PRIMARY KEY,
+                username VARCHAR(100) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                fullname NVARCHAR(255) NOT NULL,
+                role VARCHAR(50),
+                status_user VARCHAR(50) DEFAULT 'active',
             )
         ''')
 
+        # Bảng product_image
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS product_images (
+                image_id VARCHAR(255) PRIMARY KEY,
+                product_id VARCHAR(255) NOT NULL,
+                image_url VARCHAR(255) NOT NULL,
+                image_path VARCHAR(255) NOT NULL,
+                image_alt VARCHAR(255),
+                FOREIGN KEY (product_id) REFERENCES product(product_id)
+            )
+        """)
+
         # Bảng sản phẩm
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS san_pham (
-                ma_sp VARCHAR(20) PRIMARY KEY,
-                ten_sp VARCHAR(255) NOT NULL,
-                ma_danh_muc VARCHAR(20),
-                ma_thuong_hieu VARCHAR(20),
-                gia_ban DECIMAL(15,2),
-                so_luong_ton INT,
-                ngay_nhap DATETIME,
-                han_bao_hanh INT,
-                mo_ta TEXT,
-                nha_cung_cap VARCHAR(255),
-                FOREIGN KEY (ma_danh_muc) REFERENCES danh_muc(ma_danh_muc),
-                FOREIGN KEY (ma_thuong_hieu) REFERENCES thuong_hieu(ma_thuong_hieu)
+            CREATE TABLE IF NOT EXISTS product (
+                product_id VARCHAR(20) PRIMARY KEY,
+                image_id VARCHAR(20) NOT NULL
+                product_name NVARCHAR(255) NOT NULL,
+                category_id VARCHAR(20),
+                brand_id VARCHAR(20),
+                price DECIMAL(15,2),
+                stock_quantity INT,
+                entry_date DATETIME,
+                warranty_date INT,
+                description TEXT,
+                cost_price DECIMAL(15,2),
+                FOREIGN KEY (category_id) REFERENCES category(category_id),
+                FOREIGN KEY (brand_id) REFERENCES brand(brand_id)
             )
         ''')
 
         # Bảng khách hàng
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS khach_hang (
-                ma_kh VARCHAR(20) PRIMARY KEY,
-                ten_kh VARCHAR(255) NOT NULL,
-                so_dien_thoai VARCHAR(20),
-                dia_chi TEXT,
+            CREATE TABLE IF NOT EXISTS customer (
+                customer_id VARCHAR(20) PRIMARY KEY,
+                customer_name NVARCHAR(255) NOT NULL,
+                phone VARCHAR(20),
+                address TEXT,
                 email VARCHAR(255)
             )
         ''')
 
         # Bảng đơn hàng
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS don_hang (
-                ma_don_hang VARCHAR(20) PRIMARY KEY,
-                ma_kh VARCHAR(20),
-                ten_kh VARCHAR(255),
+            CREATE TABLE IF NOT EXISTS order (
+                order_id VARCHAR(20) PRIMARY KEY,
+                customer_id VARCHAR(20),
+                user_id VARCHAR(20),
                 ngay_tao DATETIME,
                 trang_thai VARCHAR(50),
                 tong_tien DECIMAL(15,2),
-                FOREIGN KEY (ma_kh) REFERENCES khach_hang(ma_kh)
+                FOREIGN KEY (customer_id) REFERENCES customer(customer_id)
             )
         ''')
 
