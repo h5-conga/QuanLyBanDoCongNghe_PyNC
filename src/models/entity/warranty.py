@@ -1,6 +1,9 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+from src.models.entity import Product
+
+
 class Warranty:
 
     def __init__(self, warranty_id: int, product_id: int, order_id: int, customer_id: int, phone: str,

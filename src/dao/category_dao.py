@@ -1,29 +1,36 @@
 from typing import Optional, List
-from mysql.connector import IntegrityError
+from mysql.connector import Error
 from src.config import DatabaseConnection
 from src.models.entity import Category
 
 
-class DanhMucDAO:
+class CategoryDAO:
     """Data Access Object cho bảng category (MySQL)"""
 
     def __init__(self):
         self.db = DatabaseConnection()
 
     def add_category(self, category: Category) -> bool:
-        """Thêm danh mục mới"""
+        """Thêm danh mục mới (category_id tự tăng)"""
         try:
             conn = self.db.get_connection()
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT INTO category (category_id, category_name, category_des)
-                VALUES (%s, %s, %s)
-            ''', (category.category_id, category.category_name, category.category_des))
+                INSERT INTO category (category_name, category_des)
+                VALUES (%s, %s)
+            ''', (category.category_name, category.category_des))
             conn.commit()
-            cursor.close()
+
+            # Lấy ID vừa sinh ra
+            category.category_id = cursor.lastrowid
+            print(f"Đã thêm danh mục '{category.category_name}' (ID = {category.category_id})")
             return True
-        except IntegrityError:
+        except Error as e:
+            print(f"Lỗi khi thêm danh mục: {e}")
+            conn.rollback()
             return False
+        finally:
+            cursor.close()
 
     def update_category(self, category: Category) -> bool:
         """Cập nhật danh mục"""
@@ -36,41 +43,55 @@ class DanhMucDAO:
                 WHERE category_id=%s
             ''', (category.category_name, category.category_des, category.category_id))
             conn.commit()
-            affected = cursor.rowcount
-            cursor.close()
-            return affected > 0
-        except:
+            return cursor.rowcount > 0
+        except Error as e:
+            print(f"Lỗi khi cập nhật danh mục: {e}")
+            conn.rollback()
             return False
+        finally:
+            cursor.close()
 
-    def delete_category(self, category_id: str) -> bool:
+    def delete_category(self, category_id: int) -> bool:
         """Xóa danh mục theo category_id"""
         try:
             conn = self.db.get_connection()
             cursor = conn.cursor()
             cursor.execute('DELETE FROM category WHERE category_id=%s', (category_id,))
             conn.commit()
-            affected = cursor.rowcount
-            cursor.close()
-            return affected > 0
-        except:
+            return cursor.rowcount > 0
+        except Error as e:
+            print(f"Lỗi khi xóa danh mục: {e}")
+            conn.rollback()
             return False
+        finally:
+            cursor.close()
 
-    def find_id_category(self, category_id: str) -> Optional[Category]:
+    def find_id_category(self, category_id: int) -> Optional[Category]:
         """Tìm danh mục theo category_id"""
-        conn = self.db.get_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM category WHERE category_id=%s', (category_id,))
-        row = cursor.fetchone()
-        cursor.close()
-        if row:
-            return Category(row['category_id'], row['category_name'], row['category_des'])
-        return None
+        try:
+            conn = self.db.get_connection()
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute('SELECT * FROM category WHERE category_id=%s', (category_id,))
+            row = cursor.fetchone()
+            if row:
+                return Category(row['category_id'], row['category_name'], row['category_des'])
+            return None
+        except Error as e:
+            print(f"Lỗi khi tìm danh mục: {e}")
+            return None
+        finally:
+            cursor.close()
 
     def list_category(self) -> List[Category]:
         """Lấy tất cả danh mục, sắp xếp theo tên"""
-        conn = self.db.get_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM category ORDER BY category_name')
-        rows = cursor.fetchall()
-        cursor.close()
-        return [Category(row['category_id'], row['category_name'], row['category_des']) for row in rows]
+        try:
+            conn = self.db.get_connection()
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute('SELECT * FROM category ORDER BY category_name')
+            rows = cursor.fetchall()
+            return [Category(row['category_id'], row['category_name'], row['category_des']) for row in rows]
+        except Error as e:
+            print(f"Lỗi khi lấy danh sách danh mục: {e}")
+            return []
+        finally:
+            cursor.close()

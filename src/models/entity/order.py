@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from src.models.entity import Order_Detail
+from src.models.entity import OrderDetail
 
 
 class Order:
@@ -12,9 +12,9 @@ class Order:
         self.customer_id = customer_id
         self.date = date
         self.user_id = user_id
-        self.order_list: List[Order_Detail] = []
+        self.order_list: List[OrderDetail] = []
 
-    def add_product(self, detail: Order_Detail):
+    def add_product(self, detail: OrderDetail):
         self.order_list.append(detail)
 
     def total_price(self) -> float:
