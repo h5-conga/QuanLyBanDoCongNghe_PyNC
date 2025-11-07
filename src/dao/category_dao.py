@@ -1,7 +1,7 @@
 from typing import Optional, List
 from mysql.connector import IntegrityError
-from src.config import DatabaseConnection
-from src.models.entity import Category
+from QuanLyBanDoCongNghe_PyNC.src.config import DatabaseConnection
+from QuanLyBanDoCongNghe_PyNC.src.models.entity import Category
 
 
 class DanhMucDAO:

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-class Order_Detail:
+class OrderDetail:
 
     def __init__(self, product_id: int, quantity: int, start_date: datetime):
         self.product_id = product_id
