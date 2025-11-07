@@ -1,11 +1,12 @@
 from datetime import datetime
-
-from src.models import Order_Detail
 from typing import List
+
+from src.models.entity import Order_Detail
+
 
 class Order:
 
-    def __init__(self, order_id: str, customer_id: str, user_id: str,
+    def __init__(self, order_id: int, customer_id: int, user_id: int,
                  date: datetime):
         self.order_id = order_id
         self.customer_id = customer_id

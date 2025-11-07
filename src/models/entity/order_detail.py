@@ -3,7 +3,7 @@ from datetime import datetime
 
 class Order_Detail:
 
-    def __init__(self, product_id: str, quantity: int, start_date: datetime):
+    def __init__(self, product_id: int, quantity: int, start_date: datetime):
         self.product_id = product_id
         self.quantity = quantity
         self.start_date = start_date

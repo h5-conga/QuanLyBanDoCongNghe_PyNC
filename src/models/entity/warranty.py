@@ -3,7 +3,7 @@ from dateutil.relativedelta import relativedelta
 
 class Warranty:
 
-    def __init__(self, warranty_id: str, product_id: str, order_id: str, customer_id: str, phone: str,
+    def __init__(self, warranty_id: int, product_id: int, order_id: int, customer_id: int, phone: str,
                  start_date: datetime, warranty_date: int):
         self.warranty_id = warranty_id
         self.product_id = product_id

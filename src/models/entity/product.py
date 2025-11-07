@@ -1,9 +1,9 @@
 from datetime import datetime
 
 class Product:
-    def __init__(self, product_id: str,image_id: str, product_name: str, barcode: str, price: float,
+    def __init__(self, product_id: int,image_id: int, product_name: str, price: float,
                  stock_quantity: int, entry_date: datetime, warranty_date: int, cost_price: float,
-                 brand_id: str, category_id: str, description: str = ""):
+                 brand_id: int, category_id: int, description: str = ""):
         self.product_id = product_id
         self.image_id = image_id
         self.product_name = product_name
