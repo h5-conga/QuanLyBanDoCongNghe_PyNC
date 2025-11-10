@@ -1,4 +1,4 @@
-class Product_Image:
+class ProductImage:
     def __init__(self, image_id: int, product_id: int, image_url: str, image_path: str,
                  image_alt: str = ""):
         self.image_id = image_id
