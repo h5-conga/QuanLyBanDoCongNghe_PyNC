@@ -1,8 +1,9 @@
 from typing import Optional, List
 from datetime import datetime
 from mysql.connector import Error, IntegrityError
-from QuanLyBanDoCongNghe_PyNC.src.config import DatabaseConnection
-from QuanLyBanDoCongNghe_PyNC.src.models.entity import Order
+
+from src.config import DatabaseConnection
+from src.models.entity import Order
 
 
 # Giả sử bạn cũng có entity User và Customer để join, nhưng DAO này sẽ tập trung vào Order

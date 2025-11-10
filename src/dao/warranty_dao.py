@@ -1,9 +1,9 @@
 from typing import Optional, List
 from datetime import datetime
 from mysql.connector import Error, IntegrityError
-from QuanLyBanDoCongNghe_PyNC.src.config import DatabaseConnection
-# Đảm bảo bạn đã import lớp Warranty từ file entity của mình
-from QuanLyBanDoCongNghe_PyNC.src.models.entity import Warranty
+
+from src.config import DatabaseConnection
+from src.models.entity import Warranty
 
 
 class WarrantyDAO:
