@@ -109,7 +109,7 @@ class UserDAO:
         try:
             conn = self.db.get_connection()
             cursor = conn.cursor(dictionary=True)
-            cursor.execute('SELECT * FROM user ORDER BY fullname')
+            cursor.execute('SELECT * FROM user ORDER BY user_id ASC')
             rows = cursor.fetchall()
             return [self._convert_to_user_obj(row) for row in rows]
         except Error as e:

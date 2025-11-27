@@ -53,10 +53,10 @@ class CustomerView(tk.Frame):
             self.entry_search.config(fg=self.TEXT_SECONDARY)
 
     def create_widgets(self):
-        header_frame = tk.Frame(self, height=50, bg="#4CAF50")
+        header_frame = tk.Frame(self, height=50, bg="#005aae")
         header_frame.pack(side=tk.TOP, fill=tk.X)
-        tk.Label(header_frame, text="LOGO", bg="#4CAF50", fg="white", font=self.header_font).pack(side=tk.LEFT, padx=15)
-        self.btn_menu = tk.Button(header_frame, text="☰", bg="#4CAF50", fg="white", bd=0,
+        tk.Label(header_frame, text="TechStore Management", bg="#005aae", fg="white", font=self.header_font).pack(side=tk.LEFT, padx=15)
+        self.btn_menu = tk.Button(header_frame, text="☰", bg="#005aae", fg="white", bd=0,
                                   font=("Arial", 12, "bold"), activebackground="#45a049",
                                   command=self.show_menu_popup)  # Gọi hàm hiển thị
         self.btn_menu.pack(side=tk.RIGHT, padx=15)
