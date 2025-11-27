@@ -1,8 +1,13 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+
+from src.controllers.brand_controller import BrandController
+from src.controllers.category_controller import CategoryController
 from src.controllers.product_controller import ProductController
 from src.views.add_product_view import AddProductWindow
 from src.utils.menu_helper import handle_open_account, handle_logout, handle_check_inventory
+from src.views.brand_view import BrandView
+from src.views.category_view import CategoryView
 from src.views.product_detail_view import ProductDetailsWindow
 import math
 
@@ -17,6 +22,9 @@ class ProductView(tk.Frame):
 
         self.controller = ProductController()
         self.controller.set_view(self)
+
+        self.category_controller = CategoryController()
+        self.brand_controller = BrandController()
 
         self.listbox_var = tk.StringVar(master=self, value="category")
         self.filter_label = None
@@ -94,6 +102,7 @@ class ProductView(tk.Frame):
                                   highlightthickness=0, relief=tk.FLAT)
         self.listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         self.listbox.bind("<<ListboxSelect>>", self.on_listbox_select)
+        self.listbox.bind("<Button-3>", self.on_right_click_listbox)
         top_frame = tk.Frame(main_frame, bg="#f9f9f9", height=55)
         top_frame.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 8))
         top_frame.grid_columnconfigure(1, weight=1)
@@ -217,7 +226,6 @@ class ProductView(tk.Frame):
         self.listbox.selection_clear(0, tk.END)
 
     def refresh_data(self):
-        print("Refreshing data...")
         self.clear_filter()
 
     def show_filter_label(self, text):
@@ -351,12 +359,25 @@ class ProductView(tk.Frame):
         self.btn_brand.config(bg="#4CAF50", fg="white")
         self.btn_category.config(bg="#f0f0f0", fg="#333")
 
+    # def update_listbox(self):
+    #     self.listbox.delete(0, tk.END)
+    #     if self.listbox_var.get() == "category":
+    #         data = self.controller.get_category_names()
+    #     else:
+    #         data = self.controller.get_brand_names()
+    #     for item in data:
+    #         self.listbox.insert(tk.END, item)
+
     def update_listbox(self):
         self.listbox.delete(0, tk.END)
-        if self.listbox_var.get() == "category":
-            data = self.controller.get_category_names()
+        current_mode = self.listbox_var.get()
+        if current_mode == "category":
+            categories = self.category_controller.get_all_categories()
+            data = [cat.category_name for cat in categories]
         else:
-            data = self.controller.get_brand_names()
+            brands = self.brand_controller.get_all_brands()
+            data = [brand.brand_name for brand in brands]
+
         for item in data:
             self.listbox.insert(tk.END, item)
 
@@ -372,7 +393,6 @@ class ProductView(tk.Frame):
                 return
         except Exception:
             return
-
         widget = event.widget
         if not str(widget).startswith(str(self.listbox)):
             self.listbox.selection_clear(0, tk.END)
@@ -406,3 +426,61 @@ class ProductView(tk.Frame):
         style.configure("Custom.Treeview", rowheight=30, font=('Arial', 10),
                         background=self.BG_CARD, fieldbackground=self.BG_CARD, relief="flat")
         style.layout("Custom.Treeview", [('Treeview.treearea', {'sticky': 'nswe'})])
+
+    def on_right_click_listbox(self, event):
+        try:
+            index = self.listbox.nearest(event.y)
+            if index == -1:
+                return
+            self.listbox.selection_clear(0, tk.END)
+            self.listbox.selection_set(index)
+            self.listbox.activate(index)
+            menu = tk.Menu(self, tearoff=0)
+            menu.add_command(label="Xem chi tiết", command=lambda: self.handle_detail_popup(index))
+            menu.post(event.x_root, event.y_root)
+        except Exception as e:
+            print(f"Error on right click: {e}")
+
+    def handle_detail_popup(self, index):
+        selected_name = self.listbox.get(index)
+        mode = self.listbox_var.get()
+        if mode == "category":
+            self.open_category_detail(selected_name)
+        else:
+            self.open_brand_detail(selected_name)
+
+    def open_category_detail(self, name):
+        all_cats = self.category_controller.get_all_categories()
+        target_cat = next((c for c in all_cats if c.category_name == name), None)
+
+        if target_cat:
+            CategoryView(
+                self.master,
+                category=target_cat,
+                controller=self.category_controller,
+                role=self.role,
+                refresh_callback=self.refresh_listbox_data
+            )
+        else:
+            messagebox.showerror("Lỗi", "Không tìm thấy dữ liệu danh mục này.")
+
+    def open_brand_detail(self, name):
+        all_brands = self.brand_controller.get_all_brands()
+        target_brand = next((b for b in all_brands if b.brand_name == name), None)
+
+        if target_brand:
+            BrandView(
+                self.master,
+                brand=target_brand,
+                controller=self.brand_controller,
+                role=self.role,
+                refresh_callback=self.refresh_listbox_data
+            )
+        else:
+            messagebox.showerror("Lỗi", "Không tìm thấy dữ liệu thương hiệu này.")
+
+    def refresh_listbox_data(self):
+        self.update_listbox()
+        self.listbox.selection_clear(0, tk.END)
+        self.clear_filter()
+        self.refresh_data()

@@ -151,16 +151,24 @@ class LoginView(tk.Tk):
         (success, message, user) = self.auth_service.log_in(username, password)
 
         if success:
+            # Import MainView tại đây để tránh vòng lặp import
             from src.views.main_view import MainView
 
+            # Đóng cửa sổ Login
             self.destroy()
 
             try:
+                # Khởi tạo MainView
+                # Lưu ý: MainView (kế thừa Tk) sẽ tự động trở thành cửa sổ chính mới
+                # mà không cần gọi mainloop() lại vì mainloop gốc (từ file main.py) vẫn đang chạy.
                 app = MainView(current_user=user)
-                app.mainloop()
+
+                # XÓA DÒNG app.mainloop() NÀY ĐI
+                # app.mainloop()  <-- GÂY LỖI
+
             except Exception as e:
                 print(f"Lỗi khởi chạy MainView: {e}")
-                messagebox.showerror("Lỗi hệ thống", f"Không thể vào màn hình chính: {e}")
-
+                # Nếu lỗi xảy ra sau khi destroy login, chương trình có thể tắt luôn.
+                # Nên in ra console để debug.
         else:
             messagebox.showerror("Lỗi đăng nhập", message)

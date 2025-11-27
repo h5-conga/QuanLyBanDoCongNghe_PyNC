@@ -11,10 +11,18 @@ class ProductDAO:
     def _create_product_from_row(self, row: dict) -> Optional[Product]:
         if not row:
             return None
+        cat_name = row.pop('category_name', "")
+        br_name = row.pop('brand_name', "")
         if 'image_id' not in row or row['image_id'] is None:
             row['image_id'] = None
-
-        return Product(**row)
+        try:
+            product = Product(**row)
+            product.category_name = cat_name
+            product.brand_name = br_name
+            return product
+        except TypeError as e:
+            print(f"Lỗi dữ liệu khớp với Entity Product: {e}")
+            return None
 
     def add_product(self, product_data: Dict) -> Optional[int]:
         conn = None
@@ -58,7 +66,6 @@ class ProductDAO:
                   product.description, product.product_id))
             conn.commit()
             return True
-
         except Error as e:
             print(f"Lỗi khi cập nhật sản phẩm: {e}")
             if conn:
@@ -68,15 +75,19 @@ class ProductDAO:
             if cursor:
                 cursor.close()
 
-
     def get_by_product_id(self, product_id: int) -> Optional[Product]:
         cursor = None
         try:
             conn = self.db.get_connection()
             cursor = conn.cursor(dictionary=True)
             cursor.execute('''
-                SELECT p.*, img.min_image_id AS image_id
+                SELECT p.*, 
+                       c.category_name, 
+                       b.brand_name,
+                       img.min_image_id AS image_id
                 FROM product p
+                LEFT JOIN category c ON p.category_id = c.category_id
+                LEFT JOIN brand b ON p.brand_id = b.brand_id
                 LEFT JOIN (
                     SELECT product_id, MIN(image_id) AS min_image_id
                     FROM product_image
@@ -99,14 +110,19 @@ class ProductDAO:
             conn = self.db.get_connection()
             cursor = conn.cursor(dictionary=True)
             cursor.execute('''
-                SELECT p.*, img.min_image_id AS image_id
+                SELECT p.*, 
+                       c.category_name, 
+                       b.brand_name,
+                       img.min_image_id AS image_id
                 FROM product p
+                LEFT JOIN category c ON p.category_id = c.category_id
+                LEFT JOIN brand b ON p.brand_id = b.brand_id
                 LEFT JOIN (
                     SELECT product_id, MIN(image_id) AS min_image_id
                     FROM product_image
                     GROUP BY product_id
                 ) AS img ON p.product_id = img.product_id
-                ORDER BY p.product_id ASC  -- <--- ĐÃ SỬA Ở ĐÂY (cũ là product_name)
+                ORDER BY p.product_id ASC
             ''')
             rows = cursor.fetchall()
             return [self._create_product_from_row(row) for row in rows if row]
@@ -123,8 +139,13 @@ class ProductDAO:
             conn = self.db.get_connection()
             cursor = conn.cursor(dictionary=True)
             cursor.execute('''
-                SELECT p.*, img.min_image_id AS image_id
+                SELECT p.*, 
+                       c.category_name, 
+                       b.brand_name,
+                       img.min_image_id AS image_id
                 FROM product p
+                LEFT JOIN category c ON p.category_id = c.category_id
+                LEFT JOIN brand b ON p.brand_id = b.brand_id
                 LEFT JOIN (
                     SELECT product_id, MIN(image_id) AS min_image_id
                     FROM product_image
@@ -146,8 +167,13 @@ class ProductDAO:
             conn = self.db.get_connection()
             cursor = conn.cursor(dictionary=True)
             cursor.execute('''
-                SELECT p.*, img.min_image_id AS image_id
+                SELECT p.*, 
+                       c.category_name, 
+                       b.brand_name,
+                       img.min_image_id AS image_id
                 FROM product p
+                LEFT JOIN category c ON p.category_id = c.category_id
+                LEFT JOIN brand b ON p.brand_id = b.brand_id
                 LEFT JOIN (
                     SELECT product_id, MIN(image_id) AS min_image_id
                     FROM product_image
@@ -169,15 +195,20 @@ class ProductDAO:
             conn = self.db.get_connection()
             cursor = conn.cursor(dictionary=True)
             cursor.execute('''
-                SELECT p.*, img.min_image_id AS image_id
+                SELECT p.*, 
+                       c.category_name, 
+                       b.brand_name,
+                       img.min_image_id AS image_id
                 FROM product p
+                LEFT JOIN category c ON p.category_id = c.category_id
+                LEFT JOIN brand b ON p.brand_id = b.brand_id
                 LEFT JOIN (
                     SELECT product_id, MIN(image_id) AS min_image_id
                     FROM product_image
                     GROUP BY product_id
                 ) AS img ON p.product_id = img.product_id
                 WHERE p.category_id = %s
-                ORDER BY p.product_id ASC -- <--- ĐÃ SỬA Ở ĐÂY
+                ORDER BY p.product_id ASC
             ''', (category_id,))
             rows = cursor.fetchall()
             return [self._create_product_from_row(row) for row in rows if row]
@@ -193,15 +224,20 @@ class ProductDAO:
             conn = self.db.get_connection()
             cursor = conn.cursor(dictionary=True)
             cursor.execute('''
-                SELECT p.*, img.min_image_id AS image_id
+                SELECT p.*, 
+                       c.category_name, 
+                       b.brand_name,
+                       img.min_image_id AS image_id
                 FROM product p
+                LEFT JOIN category c ON p.category_id = c.category_id
+                LEFT JOIN brand b ON p.brand_id = b.brand_id
                 LEFT JOIN (
                     SELECT product_id, MIN(image_id) AS min_image_id
                     FROM product_image
                     GROUP BY product_id
                 ) AS img ON p.product_id = img.product_id
                 WHERE p.brand_id = %s
-                ORDER BY p.product_id ASC -- <--- ĐÃ SỬA Ở ĐÂY
+                ORDER BY p.product_id ASC
             ''', (brand_id,))
             rows = cursor.fetchall()
             return [self._create_product_from_row(row) for row in rows if row]
