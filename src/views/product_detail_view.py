@@ -53,7 +53,7 @@ class ProductDetailsWindow:
                                                                                                       pady=4)
         tk.Label(info_frame, text="Giá bán:", font=("Arial", 11, "bold"), bg="#f5f5f5").grid(row=1, column=2,
                                                                                              sticky="w", pady=4)
-        tk.Label(info_frame, text=f"{self.product.price:,.0f} VNĐ", font=("Arial", 11), bg="#f5f5f5").grid(row=1,
+        tk.Label(info_frame, text=f"{self.product.price:,.2f} VNĐ", font=("Arial", 11), bg="#f5f5f5").grid(row=1,
                                                                                                            column=3,
                                                                                                            sticky="w",
                                                                                                            pady=4)
@@ -61,7 +61,7 @@ class ProductDetailsWindow:
         if self.role == "admin":
             tk.Label(info_frame, text="Giá nhập:", font=("Arial", 11, "bold"), bg="#f5f5f5").grid(row=1, column=4,
                                                                                                   sticky="w", pady=4)
-            tk.Label(info_frame, text=f"{self.product.cost_price:,.0f} VNĐ", font=("Arial", 11), bg="#f5f5f5").grid(
+            tk.Label(info_frame, text=f"{self.product.cost_price:,.2f} VNĐ", font=("Arial", 11), bg="#f5f5f5").grid(
                 row=1, column=5, sticky="w", pady=4)
 
         tk.Label(info_frame, text="Thời gian bảo hành:", font=("Arial", 11, "bold"), bg="#f5f5f5").grid(row=2, column=0,
@@ -137,5 +137,12 @@ class ProductDetailsWindow:
         ttk.Button(btn_frame, text="Đóng", command=self.win.destroy).pack(side="right")
 
     def edit_product(self):
+        # 1. Mở cửa sổ Edit
+        edit_win = EditProductWindow(self.master, self.product, self.controller)
+
+        # 2. Quan trọng: Chờ cửa sổ Edit đóng lại (User ấn Lưu hoặc Hủy)
+        self.win.wait_window(edit_win.win)
+
+        # 3. Sau khi Edit xong, đóng cửa sổ Detail này.
+        # Lúc này ProductView sẽ nhận được tín hiệu là Detail đã đóng -> Tự động refresh
         self.win.destroy()
-        EditProductWindow(self.master, self.product, self.controller)

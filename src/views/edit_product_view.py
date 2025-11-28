@@ -130,8 +130,13 @@ class EditProductWindow:
             img_filename = image_list[0]['image_path']
         img_path = None
         if img_filename:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            img_path = os.path.join(base_dir, "images", img_filename)
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            base_dir_old = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            if os.path.exists(os.path.join(base_dir_old, "images")):
+                img_path = os.path.join(base_dir_old, "images", img_filename)
+            else:
+                img_path = os.path.join(base_dir, "images", img_filename)
+
         self._display_image_from_path(img_path)
 
     def choose_image(self, event=None):
@@ -180,6 +185,9 @@ class EditProductWindow:
 
             if success:
                 if self.img_path:
+                    old_images = self.controller.get_images_of_product(self.product.product_id)
+                    for img in old_images:
+                        self.controller.delete_image_of_product(img['image_id'])
                     self.controller.add_image_for_product(self.product.product_id, self.img_path)
                 messagebox.showinfo("Thành công", message, parent=self.win)
                 self.win.destroy()

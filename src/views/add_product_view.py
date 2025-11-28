@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from PIL import Image, ImageTk
+from datetime import datetime
+import re
 from src.controllers.product_controller import ProductController
 
 
@@ -139,30 +141,63 @@ class AddProductWindow:
 
     def save_product(self):
         try:
-            data = {
-                "name": self.name_entry.get(),
-                "category_name": self.cat_cb.get(),
-                "brand_name": self.brand_cb.get(),
-                "description": self.desc_text.get("1.0", "end-1c").strip(),
-                "image_path": self.img_path,
-                "quantity": int(self.qty_entry.get()),
-                "price": float(self.price_entry.get()),
-                "cost_price": float(self.import_entry.get()),
-                "warranty": int(self.warranty_entry.get()),
-            }
+            name = self.name_entry.get().strip()
+            cat_name = self.cat_cb.get()
+            brand_name = self.brand_cb.get()
+
+            raw_qty = self.qty_entry.get().strip()
+            raw_price = self.price_entry.get().strip()
+            raw_cost = self.import_entry.get().strip()
+            raw_warranty = self.warranty_entry.get().strip()
+
+            if not all([name, cat_name, brand_name, raw_qty, raw_price, raw_cost, raw_warranty]):
+                messagebox.showwarning("Thiếu thông tin", "Vui lòng điền đầy đủ tất cả các trường.", parent=self.win)
+                return
+
+            quantity = int(raw_qty)
+            price = float(raw_price)
+            cost_price = float(raw_cost)
+            warranty = int(raw_warranty)
+            description = self.desc_text.get("1.0", "end-1c").strip()
+
         except ValueError:
             messagebox.showwarning("Dữ liệu không hợp lệ",
-                                   "Vui lòng đảm bảo các ô Số lượng, Giá, và Bảo hành là SỐ và không bị bỏ trống.",
+                                   "Vui lòng đảm bảo Số lượng, Giá và Bảo hành là SỐ.",
                                    parent=self.win)
             return
-        if not all([data['name'], data['category_name'], data['brand_name']]):
-            messagebox.showwarning("Thiếu thông tin",
-                                   "Vui lòng điền đầy đủ Tên, Danh mục và Thương hiệu.",
-                                   parent=self.win)
+
+        cat_id = next((k for k, v in self.controller.category_map.items() if v == cat_name), None)
+        brand_id = next((k for k, v in self.controller.brand_map.items() if v == brand_name), None)
+
+        if cat_id is None or brand_id is None:
+            messagebox.showerror("Lỗi", "Dữ liệu Danh mục hoặc Thương hiệu không hợp lệ.", parent=self.win)
             return
-        success, message = self.controller.handle_add_product(data)
+
+        product_data = {
+            'product_name': name,
+            'stock_quantity': quantity,
+            'price': price,
+            'cost_price': cost_price,
+            'warranty_date': warranty,
+            'category_id': cat_id,
+            'brand_id': brand_id,
+            'description': description,
+            'entry_date': datetime.now(),
+            'image_path': self.img_path
+        }
+
+        success, message = self.controller.handle_add_product(product_data)
 
         if success:
+            if self.img_path:
+                try:
+                    match = re.search(r'ID:\s*(\d+)', message)
+                    if match:
+                        new_product_id = int(match.group(1))
+                        self.controller.add_image_for_product(new_product_id, self.img_path)
+                except Exception as e:
+                    print(f"Lỗi thêm ảnh phụ: {e}")
+
             messagebox.showinfo("Thành công", message, parent=self.win)
             self.win.destroy()
         else:

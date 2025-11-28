@@ -21,7 +21,7 @@ class CustomerView(tk.Frame):
         self.header_font = ("Arial", 14, "bold")
         self.controller = CustomerController()
         self.controller.set_view(self)
-        self.items_per_page = 25
+        self.items_per_page = 20
         self.current_page = 1
         self.total_pages = 1
         self.all_customer_data = []

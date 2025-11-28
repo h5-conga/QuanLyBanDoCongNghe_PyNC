@@ -34,7 +34,7 @@ class LoginView(tk.Tk):
 
     def load_background(self):
         try:
-            image = Image.open(r"D:\python\BTL\images\sapa-ruong-bac-thang.jpg")
+            image = Image.open(r"images\sapa-ruong-bac-thang.jpg")
             image = image.resize((self.winfo_screenwidth(), self.winfo_screenheight()), Image.Resampling.LANCZOS)
             self.bg_image_tk = ImageTk.PhotoImage(image)
             bg_label = tk.Label(self, image=self.bg_image_tk)

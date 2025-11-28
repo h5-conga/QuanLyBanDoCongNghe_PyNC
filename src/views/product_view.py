@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+import math
 
 from src.controllers.brand_controller import BrandController
 from src.controllers.category_controller import CategoryController
@@ -9,7 +10,6 @@ from src.utils.menu_helper import handle_open_account, handle_logout, handle_che
 from src.views.brand_view import BrandView
 from src.views.category_view import CategoryView
 from src.views.product_detail_view import ProductDetailsWindow
-import math
 
 
 class ProductView(tk.Frame):
@@ -63,6 +63,7 @@ class ProductView(tk.Frame):
             btn = tk.Button(menu_frame, text=item, bg=btn_bg, fg="#333", bd=0,
                             padx=15, pady=5, activebackground="#d0d0d0")
             btn.pack(side=tk.LEFT, padx=5)
+
             def on_click(view_name=item):
                 if hasattr(self, 'main_controller') and self.main_controller:
                     self.main_controller.switch_view(view_name)
@@ -226,7 +227,9 @@ class ProductView(tk.Frame):
         self.listbox.selection_clear(0, tk.END)
 
     def refresh_data(self):
+        self.controller.refresh_maps()
         self.clear_filter()
+        self.update_idletasks()
 
     def show_filter_label(self, text):
         if self.filter_label: self.filter_label.destroy()
@@ -253,7 +256,11 @@ class ProductView(tk.Frame):
         menu.post(x, y)
 
     def add_product_window(self):
-        AddProductWindow(self.master, self.controller)
+        add_win = AddProductWindow(self.master, self.controller)
+        if hasattr(add_win, 'win'):
+            self.master.wait_window(add_win.win)
+
+        self.refresh_data()
 
     def add_category_window(self):
         win = tk.Toplevel(self.master)
@@ -279,6 +286,8 @@ class ProductView(tk.Frame):
                   command=save_cmd).pack(side="left")
         tk.Button(btn_frame, text="Hủy", bg="#f44336", fg="white", padx=15, pady=5, relief="flat",
                   command=win.destroy).pack(side="left", padx=10)
+        self.master.wait_window(win)
+        self.update_listbox()
 
     def on_save_category(self, win, entry_ten, text_mo_ta):
         ten = entry_ten.get().strip()
@@ -321,6 +330,8 @@ class ProductView(tk.Frame):
                   command=save_cmd).pack(side="left")
         tk.Button(btn_frame, text="Hủy", bg="#f44336", fg="white", padx=15, pady=5, relief="flat",
                   command=win.destroy).pack(side="left", padx=10)
+        self.master.wait_window(win)
+        self.update_listbox()
 
     def on_save_brand(self, win, entry_ten, text_mo_ta, entry_quoc_gia):
         ten = entry_ten.get().strip()
@@ -345,7 +356,16 @@ class ProductView(tk.Frame):
         if not full_product_data:
             messagebox.showerror("Lỗi", "Không tìm thấy dữ liệu đầy đủ cho sản phẩm.")
             return
-        ProductDetailsWindow(self.master, full_product_data, self.controller, role=self.role)
+        detail_view = ProductDetailsWindow(self.master, full_product_data, self.controller, role=self.role)
+        window_to_wait = None
+        if hasattr(detail_view, 'win'):
+            window_to_wait = detail_view.win
+        elif isinstance(detail_view, tk.Toplevel):
+            window_to_wait = detail_view
+
+        if window_to_wait:
+            self.master.wait_window(window_to_wait)
+        self.refresh_data()
 
     def show_category(self):
         self.listbox_var.set("category")
@@ -358,15 +378,6 @@ class ProductView(tk.Frame):
         self.update_listbox()
         self.btn_brand.config(bg="#4CAF50", fg="white")
         self.btn_category.config(bg="#f0f0f0", fg="#333")
-
-    # def update_listbox(self):
-    #     self.listbox.delete(0, tk.END)
-    #     if self.listbox_var.get() == "category":
-    #         data = self.controller.get_category_names()
-    #     else:
-    #         data = self.controller.get_brand_names()
-    #     for item in data:
-    #         self.listbox.insert(tk.END, item)
 
     def update_listbox(self):
         self.listbox.delete(0, tk.END)

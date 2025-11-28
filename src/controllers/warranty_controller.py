@@ -19,7 +19,7 @@ class WarrantyController:
                 if cust:
                     customer_name = cust.customer_name
             product_name = "Unknown"
-            product_code = f"SP{w.product_id}"
+            product_code = f"{w.product_id}"
             if w.product_id:
                 prod = self.product_dao.get_by_product_id(w.product_id)
                 if prod:
